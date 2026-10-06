@@ -1,17 +1,48 @@
 import {
-  ORIGINS, DESTINATIONS, FALLBACK_RATES, DELIVERY,
+  ORIGINS, DESTINATIONS, FALLBACK_RATES, MODES,
   compare, defaultAssumptions,
 } from './pricing.js';
 
 const RATES_URL = 'https://open.er-api.com/v6/latest/USD';
-const ASSUMPTION_KEYS = ['g66Pct', 'bankSpreadPct', 'swiftUsd', 'ivaPct', 'correspondentUsd', 'receivingUsd'];
+const ASSUMPTION_KEYS = ['g66Pct', 'bankSpreadPct', 'swiftUsd', 'ivaPct', 'correspondentUsd', 'receivingUsd', 'fxFeeUsd'];
 const COLORS = {
-  fee: '#64dfc4',
-  spread: '#ff7a6b',
-  swift: '#ffc56b',
-  iva: '#c9a2ff',
-  correspondent: '#7aa2ff',
-  receiving: '#9aa6c7',
+  fee: '#2a48af',
+  spread: '#e5484d',
+  swift: '#f5a524',
+  iva: '#b39ddb',
+  correspondent: '#ff8a65',
+  receiving: '#c3cff5',
+};
+
+// Textos que cambian según el modo.
+const COPY = {
+  transfer: {
+    send: 'Monto a enviar:',
+    receive: 'Tu proveedor recibe:',
+    savingsLead: 'Tu proveedor recibe',
+    g66Sub: 'Pago local, sin SWIFT ni intermediarios',
+    bankSub: 'Transferencia vía red SWIFT',
+    unit: ['envío', 'envíos'],
+    proj: '¿Cuántas veces al mes pagas al exterior? Mismo monto y corredor en cada envío.',
+  },
+  fx: {
+    send: 'Monto a convertir:',
+    receive: 'Recibes en tu cuenta:',
+    savingsLead: 'Recibes',
+    g66Sub: 'Conversión instantánea en Tu Cuenta Global',
+    bankSub: 'Compra de divisas en el banco',
+    unit: ['conversión', 'conversiones'],
+    proj: '¿Cuántas veces al mes compras o vendes divisas? Mismo monto en cada operación.',
+  },
+  payout: {
+    send: 'Monto total del lote:',
+    receive: 'Tus beneficiarios reciben:',
+    savingsLead: 'Tus beneficiarios reciben',
+    g66Sub: 'Multienvío: todo el lote en un clic, una sola conversión',
+    bankSub: 'Un giro SWIFT por cada beneficiario',
+    unit: ['lote', 'lotes'],
+    proj: '¿Cuántos lotes de pagos haces al mes? Nóminas, proveedores o comisiones en el exterior.',
+  },
 };
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -20,10 +51,12 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 const params = new URLSearchParams(location.search);
 const state = {
+  mode: MODES[params.get('mode')] ? params.get('mode') : 'transfer',
   amount: Number(params.get('amount')) || 20000000,
   from: ORIGINS[params.get('from')] ? params.get('from') : 'COP',
   to: DESTINATIONS[params.get('to')] ? params.get('to') : 'USD',
   perMonth: Math.min(60, Math.max(1, Number(params.get('n')) || 4)),
+  payments: Math.min(1000, Math.max(2, Number(params.get('p')) || 25)),
   rates: { ...FALLBACK_RATES },
   live: false,
   updated: null,
@@ -31,14 +64,15 @@ const state = {
   edited: new Set(), // supuestos que el usuario fijó a mano
 };
 
-// ---------- formato ----------
+// ---------- formato (estilo Global66: "26.000 COP") ----------
 const nf = (d) => new Intl.NumberFormat('es-CO', { minimumFractionDigits: d, maximumFractionDigits: d });
 const decimalsOf = (ccy) => (ORIGINS[ccy] || DESTINATIONS[ccy]).decimals;
-const money = (v, ccy) => `$ ${nf(decimalsOf(ccy)).format(v)} ${ccy}`;
-const moneyShort = (v, ccy) => `$ ${nf(decimalsOf(ccy)).format(v)}`;
+const money = (v, ccy) => `${nf(decimalsOf(ccy)).format(v)} ${ccy}`;
+const num = (v, ccy) => nf(decimalsOf(ccy)).format(v);
 const pct = (v) => `${nf(v < 10 ? 2 : 1).format(v)}%`;
 const rateLine = (rate, from, to) =>
   rate >= 1 ? `1 ${from} = ${nf(4).format(rate)} ${to}` : `1 ${to} = ${nf(2).format(1 / rate)} ${from}`;
+const plural = (n, [one, many]) => `${n} ${n === 1 ? one : many}`;
 
 // ---------- animación de cifras ----------
 const tweens = new WeakMap();
@@ -56,8 +90,7 @@ function animateNumber(el, to, format) {
     const t = Math.min(1, (now - start) / dur);
     const v = from + (to - from) * (1 - Math.pow(1 - t, 3));
     el.textContent = format(v);
-    const entry = { value: v, raf: t < 1 ? requestAnimationFrame(tick) : null };
-    tweens.set(el, entry);
+    tweens.set(el, { value: v, raf: t < 1 ? requestAnimationFrame(tick) : null });
   };
   tweens.set(el, { value: from, raf: requestAnimationFrame(tick) });
 }
@@ -65,16 +98,19 @@ const setNum = (key, value, format) => out(key).forEach((el) => animateNumber(el
 const setText = (key, text) => out(key).forEach((el) => { el.textContent = text; });
 
 // ---------- supuestos ----------
+const form = $('[data-assume]');
 function refreshAssumptions() {
-  const defaults = defaultAssumptions(state.amount, state.from, state.rates);
+  const defaults = defaultAssumptions(state.amount, state.from, state.rates, state.mode, state.payments);
   const prev = state.assumptions || {};
   state.assumptions = Object.fromEntries(
     ASSUMPTION_KEYS.map((k) => [k, state.edited.has(k) ? prev[k] : defaults[k]]),
   );
-  const form = $('[data-assume]');
   ASSUMPTION_KEYS.forEach((k) => {
     const input = form.elements[k];
     if (document.activeElement !== input) input.value = state.assumptions[k];
+  });
+  form.querySelectorAll('[data-modes]').forEach((el) => {
+    el.hidden = !el.dataset.modes.split(' ').includes(state.mode);
   });
 }
 
@@ -82,7 +118,7 @@ function refreshAssumptions() {
 function lineItem({ label, value, ccy, tag, tagOk, zero }) {
   const li = document.createElement('li');
   if (zero) li.className = 'is-zero';
-  li.innerHTML = `<span class="dot"></span><span class="lbl"></span><span class="val"></span>`;
+  li.innerHTML = '<span class="dot"></span><span class="lbl"></span><span class="val"></span>';
   li.querySelector('.lbl').textContent = label;
   if (tag) {
     const t = document.createElement('span');
@@ -95,19 +131,40 @@ function lineItem({ label, value, ccy, tag, tagOk, zero }) {
 }
 
 function renderLines(r) {
-  const { from } = state;
-  const g = $('[data-lines="g66"]');
-  g.replaceChildren(
-    lineItem({ label: 'Costo de envío', value: r.g66.lines[0].value, ccy: from, tag: 'Todo incluido', tagOk: true }),
-    lineItem({ label: 'Comisión SWIFT', value: 'Sin costo', zero: true }),
-    lineItem({ label: 'Bancos intermediarios', value: 'Sin costo', zero: true }),
+  const { from, mode } = state;
+  const fee = r.g66.lines[0];
+  const zeros = mode === 'fx'
+    ? [lineItem({ label: 'Comisión por operación', value: 'Sin costo', zero: true })]
+    : [
+      lineItem({ label: mode === 'payout' ? 'Comisiones SWIFT por giro' : 'Comisión SWIFT', value: 'Sin costo', zero: true }),
+      lineItem({ label: 'Bancos intermediarios', value: 'Sin costo', zero: true }),
+    ];
+  $('[data-lines="g66"]').replaceChildren(
+    lineItem({ label: fee.label, value: fee.value, ccy: from, tag: 'Todo incluido', tagOk: true }),
+    ...zeros,
     lineItem({ label: 'Monto a convertir', value: r.g66.convert, ccy: from }),
   );
-  const b = $('[data-lines="bank"]');
-  b.replaceChildren(
+  $('[data-lines="bank"]').replaceChildren(
     ...r.bank.lines.map((l) => lineItem({ label: l.label, value: l.value, ccy: from, tag: l.hidden ? 'Oculto' : null })),
     lineItem({ label: 'Monto a convertir', value: r.bank.convert, ccy: from }),
   );
+
+  // Versión compacta dentro del cotizador.
+  $('[data-bankfees]').replaceChildren(...r.bank.lines.map((l) => {
+    const li = document.createElement('li');
+    const name = document.createElement('span');
+    // En la lista compacta el "(N giros)" solo se muestra en la comisión SWIFT.
+    name.textContent = l.key === 'swift' ? l.label : l.label.replace(/ \(\d+ giros\)$/, '');
+    if (l.hidden) {
+      const em = document.createElement('em');
+      em.textContent = 'oculto';
+      name.append(em);
+    }
+    const val = document.createElement('span');
+    val.textContent = money(l.value, from);
+    li.append(name, val);
+    return li;
+  }));
 }
 
 function renderBars(r) {
@@ -123,31 +180,42 @@ function renderBars(r) {
   };
   fill($('[data-bar="g66"]'), r.g66.lines);
   fill($('[data-bar="bank"]'), r.bank.lines);
-  const legend = $('[data-legend]');
-  legend.replaceChildren(...[...r.g66.lines, ...r.bank.lines].map((l) => {
+  $('[data-legend]').replaceChildren(...[...r.g66.lines, ...r.bank.lines].map((l) => {
     const li = document.createElement('li');
     li.innerHTML = `<i style="background:${COLORS[l.key]}"></i>`;
-    li.append(l.key === 'fee' ? 'Costo de envío Global66' : l.label);
+    li.append(l.key === 'fee' ? `${l.label} Global66` : l.label.replace(/ \(\d+ giros\)$/, ''));
     return li;
   }));
 }
 
 function render() {
-  const { amount, from, to, rates, assumptions, perMonth } = state;
-  const r = compare({ amount, from, to, rates, assumptions, perMonth });
-  const usdFrom = rates[from];
+  const { mode, amount, from, to, rates, assumptions, perMonth, payments } = state;
+  const r = compare({ mode, amount, from, to, rates, assumptions, perMonth, payments });
+  const copy = COPY[mode];
 
-  setNum('g66Receive', r.g66.receive, (v) => moneyShort(v, to));
-  setNum('bankReceive', r.bank.receive, (v) => moneyShort(v, to));
+  setText('sendLabel', copy.send);
+  setText('receiveLabel', copy.receive);
+  setText('savingsLead', copy.savingsLead);
+  setText('g66Sub', copy.g66Sub);
+  setText('bankSub', mode === 'payout' ? `${payments} giros SWIFT, uno por beneficiario` : copy.bankSub);
+  setText('projLead', copy.proj);
+  $('[data-payments]').hidden = mode !== 'payout';
+  out('perPayment').forEach((el) => {
+    el.hidden = mode !== 'payout';
+    el.textContent = `Cada uno: ${money(r.g66.receive / r.payments, to)} con Global66 vs ${money(r.bank.receive / r.payments, to)} con tu banco`;
+  });
+
+  setNum('g66Receive', r.g66.receive, (v) => num(v, to));
+  setNum('bankReceive', r.bank.receive, (v) => num(v, to));
   setNum('savingsDest', r.savingsDest, (v) => money(v, to));
   setNum('savings', r.savings, (v) => money(v, from));
-  setNum('bankPct', r.bank.costPct, pct);
-  setNum('g66Pct', r.g66.costPct, pct);
+  setNum('bankPct', r.bank.costPct, (v) => `(${pct(v)})`);
+  setNum('g66Pct', r.g66.costPct, (v) => `(${pct(v)})`);
   setNum('g66Cost', r.g66.cost, (v) => money(v, from));
   setNum('bankCost', r.bank.cost, (v) => money(v, from));
   setNum('savingsYear', r.savingsYear, (v) => money(v, from));
-  setText('savingsYearUsd', `≈ US$ ${nf(0).format(r.savingsYear / usdFrom)} al año, ${perMonth} ${perMonth === 1 ? 'envío' : 'envíos'} al mes`);
-  setText('perMonth', `${perMonth} ${perMonth === 1 ? 'envío' : 'envíos'} al mes`);
+  setText('savingsYearUsd', `≈ ${nf(0).format(r.savingsYear / rates[from])} USD al año, ${plural(perMonth, copy.unit)} al mes`);
+  setText('perMonth', `${plural(perMonth, copy.unit)} al mes`);
 
   setText('g66CostShort', `${money(r.g66.cost, from)} · ${pct(r.g66.costPct)}`);
   setText('bankCostShort', `${money(r.bank.cost, from)} · ${pct(r.bank.costPct)}`);
@@ -155,8 +223,8 @@ function render() {
   setText('bankRate', rateLine(r.bank.rate, from, to));
   setText('g66RateLine', rateLine(r.g66.rate, from, to));
   setText('bankRateLine', rateLine(r.bank.rate, from, to));
-  setText('g66Time', DELIVERY.g66);
-  setText('bankTime', DELIVERY.bank);
+  setText('g66Time', MODES[mode].delivery.g66);
+  setText('bankTime', MODES[mode].delivery.bank);
   out('bankWarn').forEach((el) => { el.hidden = !r.bank.insufficient; });
 
   renderLines(r);
@@ -165,9 +233,23 @@ function render() {
 }
 
 function syncUrl() {
-  const q = new URLSearchParams({ amount: state.amount, from: state.from, to: state.to, n: state.perMonth });
+  const q = new URLSearchParams({ mode: state.mode, amount: state.amount, from: state.from, to: state.to, n: state.perMonth });
+  if (state.mode === 'payout') q.set('p', state.payments);
   history.replaceState(null, '', `${location.pathname}?${q}`);
 }
+
+const update = () => { refreshAssumptions(); render(); };
+
+// ---------- modo ----------
+document.querySelectorAll('input[name="mode"]').forEach((radio) => {
+  radio.checked = radio.value === state.mode;
+  radio.addEventListener('change', () => {
+    state.mode = radio.value;
+    state.edited.delete('g66Pct');
+    state.edited.delete('bankSpreadPct');
+    update();
+  });
+});
 
 // ---------- selector de moneda ----------
 function setupCurrency(which, catalog) {
@@ -188,10 +270,10 @@ function setupCurrency(which, catalog) {
     li.role = 'option';
     li.tabIndex = 0;
     li.dataset.code = code;
-    li.innerHTML = `<img src="assets/flags/${c.flag}.svg" alt="" /><b>${code}</b><span>${c.country}</span>`;
+    li.innerHTML = `<img src="assets/flags/${c.flag}.svg" alt="" /><b>${code}</b><span>${c.name}</span>`;
     const pick = () => {
       if (which === 'from' && code !== state.from) {
-        // Mantiene el tamaño del envío al cambiar de moneda de origen.
+        // Mantiene el tamaño de la operación al cambiar de moneda de origen.
         const usd = state.amount / state.rates[state.from];
         const step = state.rates[code] > 100 ? 1000 : 10;
         state.amount = Math.max(step, Math.round((usd * state.rates[code]) / step) * step);
@@ -201,8 +283,7 @@ function setupCurrency(which, catalog) {
       state[which] = code;
       paint();
       close();
-      refreshAssumptions();
-      render();
+      update();
       btn.focus();
     };
     li.addEventListener('click', pick);
@@ -235,8 +316,24 @@ amountInput.addEventListener('input', () => {
   amountInput.value = digits ? nf(0).format(state.amount) : '';
   const pos = Math.max(0, amountInput.value.length - fromEnd);
   amountInput.setSelectionRange(pos, pos);
-  refreshAssumptions();
-  render();
+  update();
+});
+
+// ---------- número de pagos (dispersión) ----------
+const paymentsInput = $('#payments');
+const setPayments = (n) => {
+  state.payments = Math.min(1000, Math.max(2, Math.round(n) || 2));
+  paymentsInput.value = state.payments;
+  update();
+};
+paymentsInput.value = state.payments;
+paymentsInput.addEventListener('change', () => setPayments(Number(paymentsInput.value.replace(/\D/g, ''))));
+paymentsInput.addEventListener('input', () => {
+  const n = Number(paymentsInput.value.replace(/\D/g, ''));
+  if (n >= 2 && n <= 1000) { state.payments = n; update(); }
+});
+document.querySelectorAll('[data-step]').forEach((b) => {
+  b.addEventListener('click', () => setPayments(state.payments + Number(b.dataset.step)));
 });
 
 // ---------- frecuencia ----------
@@ -248,7 +345,6 @@ perMonth.addEventListener('input', () => {
 });
 
 // ---------- supuestos editables ----------
-const form = $('[data-assume]');
 form.addEventListener('input', (e) => {
   const k = e.target.name;
   if (!ASSUMPTION_KEYS.includes(k)) return;
@@ -260,8 +356,7 @@ form.addEventListener('input', (e) => {
 });
 $('[data-reset]').addEventListener('click', () => {
   state.edited.clear();
-  refreshAssumptions();
-  render();
+  update();
 });
 
 // ---------- tasas en vivo ----------
@@ -282,10 +377,9 @@ async function loadRates() {
     ? state.updated.toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     : null;
   setText('rateSource', state.live
-    ? `Tasa real de mercado actualizada el ${when} · Fuente: open.er-api.com`
+    ? `Tasa real de mercado del ${when} · Fuente: open.er-api.com`
     : 'Tasas de referencia del 5 de octubre de 2026 (sin conexión a la fuente en vivo).');
-  refreshAssumptions();
-  render();
+  update();
 }
 
 // ---------- nav activa ----------
@@ -302,6 +396,5 @@ const observer = new IntersectionObserver((entries) => {
 paintAmount();
 setupCurrency('from', ORIGINS);
 setupCurrency('to', DESTINATIONS);
-refreshAssumptions();
-render();
+update();
 loadRates();

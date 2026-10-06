@@ -4,16 +4,24 @@ Comparador de costos de transferencias internacionales para empresas: **Global66
 
 Muestra, línea por línea, lo que realmente cuesta pagar a un proveedor en el exterior: el costo de envío de Global66 frente al spread en el tipo de cambio, la comisión SWIFT, el IVA, el banco corresponsal y el banco receptor que cobra un banco tradicional.
 
+## Modos
+
+| Modo | Global66 | Banco tradicional |
+|---|---|---|
+| **Transferencia internacional** | Costo de envío por tramo, pago local | Spread + SWIFT + IVA + corresponsal + receptor |
+| **Conversión de divisas** | Costo de tipo de cambio por tramo, instantánea | Spread + comisión por operación de cambio + IVA |
+| **Dispersión de pagos** (multienvío) | Una sola conversión para todo el lote | Un giro SWIFT por beneficiario: las comisiones fijas se multiplican |
+
 ## Qué hace
 
-- **Cotizador** con el look del cotizador de Global66: monto, moneda de origen (COP, CLP, PEN, MXN) y de destino (USD, EUR, GBP).
+- **Cotizador** con el look de Global66 (azul royal `#2A48AF`, Montserrat, tarjeta blanca), selector de modo y lista de lo que cobra el banco: monto, moneda de origen (COP, CLP, PEN, MXN) y de destino (USD, EUR, GBP).
 - **Lo que recibe tu proveedor** con Global66 y con el banco, y la diferencia.
 - **Dónde se va tu dinero**: desglose de cada cobro, marcando los costos ocultos.
 - **Anatomía del costo**: barra comparativa por componente.
 - **Proyección anual** según la cantidad de envíos al mes.
 - **Supuestos editables**: spread, comisión SWIFT, IVA, corresponsal y receptor, para ajustar con la cotización real de un banco.
 - Tasa real de mercado en vivo desde [open.er-api.com](https://open.er-api.com), con valores de respaldo si no hay conexión.
-- El escenario queda en la URL (`?amount=20000000&from=COP&to=USD&n=4`), útil para compartir una simulación con un cliente.
+- El escenario queda en la URL (`?mode=payout&amount=150000000&from=COP&to=USD&n=2&p=25`), útil para compartir una simulación con un cliente.
 
 ## Cómo se calcula
 

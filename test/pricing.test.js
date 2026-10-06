@@ -45,3 +45,31 @@ test('la proyección anual escala con la frecuencia', () => {
   const r = run(20_000_000, 'COP', 'USD', 4);
   assert.ok(Math.abs(r.savingsYear - r.savings * 48) < 1e-6);
 });
+
+const runMode = (mode, amount, from, to, payments = 1) =>
+  compare({ mode, amount, from, to, rates, payments, assumptions: defaultAssumptions(amount, from, rates, mode, payments) });
+
+test('conversión de divisas: sin SWIFT ni intermediarios en el banco', () => {
+  const r = runMode('fx', 10_000_000, 'COP', 'USD');
+  const keys = r.bank.lines.map((l) => l.key);
+  assert.deepEqual(keys, ['spread', 'swift', 'iva']);
+  assert.ok(r.g66.receive > r.bank.receive);
+});
+
+test('dispersión: las comisiones fijas del banco se multiplican por cada giro', () => {
+  const one = runMode('payout', 50_000_000, 'COP', 'USD', 2);
+  const many = runMode('payout', 50_000_000, 'COP', 'USD', 20);
+  const swift = (r) => r.bank.lines.find((l) => l.key === 'swift').value;
+  assert.ok(Math.abs(swift(many) - swift(one) * 10) < 1e-6);
+  assert.ok(many.bank.cost > one.bank.cost);
+  assert.ok(many.savings > one.savings);
+});
+
+test('en todos los modos el costo es la suma de sus líneas', () => {
+  for (const [mode, p] of [['transfer', 1], ['fx', 1], ['payout', 30]]) {
+    const r = runMode(mode, 80_000_000, 'COP', 'EUR', p);
+    const sum = (lines) => lines.reduce((s, l) => s + l.value, 0);
+    assert.ok(Math.abs(sum(r.bank.lines) - r.bank.cost) < 1e-3, mode);
+    assert.ok(Math.abs(sum(r.g66.lines) - r.g66.cost) < 1e-3, mode);
+  }
+});

@@ -14,90 +14,123 @@
 <body>
   <header class="nav">
     <div class="wrap nav__inner">
-      <a class="nav__brand" href="#" aria-label="Global66 Business">
-        <img src="assets/logo-business.svg" alt="Global66 Business" width="214" height="27" />
+      <a class="nav__brand" href="#" aria-label="Global66">
+        <img src="assets/logo-blue.svg" alt="Global66" width="201" height="38" />
       </a>
       <nav class="nav__links" aria-label="Secciones">
         <a href="#calculadora" class="is-active">CALCULADORA</a>
         <a href="#detalle">DETALLE</a>
         <a href="#proyeccion">PROYECCIÓN</a>
       </nav>
-      <a class="btn btn--white nav__cta" href="https://empresas.global66.com/auth/sign-up" target="_blank" rel="noopener">Crear cuenta</a>
+      <a class="btn btn--blue nav__cta" href="https://empresas.global66.com/auth/sign-up" target="_blank" rel="noopener">Crear cuenta</a>
+    </div>
+    <div class="ribbon">
+      <p class="wrap">¿Tienes una <b>EMPRESA</b>? Mira cuánto te cobra tu banco por cada pago al exterior.</p>
     </div>
   </header>
 
   <main>
-    <!-- HERO + CALCULADORA -->
-    <section class="hero" id="calculadora">
-      <div class="wrap hero__grid">
-        <div class="hero__copy">
-          <p class="eyebrow">SI TU EMPRESA PAGA AL EXTERIOR</p>
-          <h1 class="hero__title">LO QUE TU<br />BANCO NO<br />TE MUESTRA</h1>
-          <p class="hero__lead">
-            Compara una transferencia internacional con Global66 frente a un banco tradicional.
-            Spread, comisión SWIFT, bancos corresponsales e IVA, línea por línea.
-          </p>
-          <div class="hero__stats">
-            <div><strong data-out="bankPct">0%</strong><span>se pierde con tu banco</span></div>
-            <div><strong data-out="g66Pct" class="mint">0%</strong><span>cuesta con Global66</span></div>
+    <!-- HERO + COTIZADOR -->
+    <section class="block" id="calculadora">
+      <div class="panel panel--hero">
+        <div class="hero__grid">
+          <div class="hero__copy">
+            <p class="hero__eyebrow">TU BANCO VS TU CUENTA GLOBAL</p>
+            <h1 class="hero__title">LO QUE TU BANCO NO TE MUESTRA</h1>
+            <p class="hero__lead">Compara Global66 frente a un banco tradicional en transferencias internacionales, conversión de divisas y dispersión de pagos. Spread, comisión SWIFT, corresponsales e IVA, <b>línea por línea</b>.</p>
+            <div class="hero__actions">
+              <a class="btn btn--white btn--lg" href="https://empresas.global66.com/auth/sign-up" target="_blank" rel="noopener">Crea Tu Cuenta</a>
+              <a class="link-white" href="#detalle">Ver el detalle</a>
+            </div>
           </div>
-        </div>
 
-        <div class="quoter" aria-live="polite">
-          <div class="quoter__panel">
-            <label class="quoter__label" for="amount">Tú envías</label>
-            <div class="quoter__row">
-              <div class="quoter__amount">
-                <span class="quoter__sym">$</span>
-                <input id="amount" inputmode="numeric" autocomplete="off" value="20.000.000" aria-label="Monto a enviar" />
+          <div class="quoter">
+            <fieldset class="quoter__box modes">
+              <legend>Qué deseas hacer:</legend>
+              <div class="modes__opts">
+                <label class="radio"><input type="radio" name="mode" value="transfer" checked /><i></i>Transferencia internacional</label>
+                <label class="radio"><input type="radio" name="mode" value="fx" /><i></i>Conversión de divisas</label>
+                <label class="radio"><input type="radio" name="mode" value="payout" /><i></i>Dispersión de pagos</label>
               </div>
-              <div class="ccy" data-ccy="from">
-                <button class="ccy__btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                  <img alt="" width="24" height="24" /><span></span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                </button>
-                <ul class="ccy__list" role="listbox"></ul>
+            </fieldset>
+
+            <div class="quoter__box" aria-live="polite">
+              <div class="quoter__field">
+                <label class="quoter__label" for="amount" data-out="sendLabel">Monto a enviar:</label>
+                <div class="quoter__row">
+                  <input id="amount" class="quoter__input" inputmode="numeric" autocomplete="off" value="20.000.000" aria-label="Monto a enviar" />
+                  <div class="ccy" data-ccy="from">
+                    <button class="ccy__btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                      <img alt="" width="22" height="22" /><span></span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
+                    <div class="ccy__sheet">
+                      <p class="ccy__title">Selecciona la moneda</p>
+                      <ul class="ccy__list" role="listbox"></ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="quoter__field" data-payments hidden>
+                <div class="quoter__row quoter__row--head">
+                  <label class="quoter__label" for="payments">Número de pagos:</label>
+                  <div class="stepper">
+                    <button type="button" data-step="-1" aria-label="Menos pagos">−</button>
+                    <input id="payments" inputmode="numeric" value="25" aria-label="Número de pagos" />
+                    <button type="button" data-step="1" aria-label="Más pagos">+</button>
+                  </div>
+                </div>
+                <p class="quoter__hint">Nómina o proveedores en el exterior. El monto total se reparte entre todos.</p>
+              </div>
+              <div class="quoter__field">
+                <div class="quoter__row quoter__row--head">
+                  <span class="quoter__label" data-out="receiveLabel">Tu proveedor recibe:</span>
+                  <div class="ccy" data-ccy="to">
+                    <button class="ccy__btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+                      <img alt="" width="22" height="22" /><span></span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                    </button>
+                    <div class="ccy__sheet">
+                      <p class="ccy__title">Selecciona la moneda</p>
+                      <ul class="ccy__list" role="listbox"></ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="receive receive--g66">
+                  <span class="receive__who"><img src="assets/iso-blue.svg" alt="" width="20" height="20" />Con Global66</span>
+                  <span class="receive__value" data-out="g66Receive">0</span>
+                </div>
+                <div class="receive receive--bank">
+                  <span class="receive__who"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 21h18M12 3l9 5H3l9-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Con tu banco</span>
+                  <span class="receive__value" data-out="bankReceive">0</span>
+                </div>
+                <p class="receive__each" data-out="perPayment" hidden></p>
               </div>
             </div>
-          </div>
 
-          <div class="quoter__panel">
-            <div class="quoter__row quoter__row--top">
-              <span class="quoter__label">Tu proveedor recibe</span>
-              <div class="ccy" data-ccy="to">
-                <button class="ccy__btn" type="button" aria-haspopup="listbox" aria-expanded="false">
-                  <img alt="" width="24" height="24" /><span></span>
-                  <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-                </button>
-                <ul class="ccy__list" role="listbox"></ul>
+            <dl class="quoter__box facts">
+              <div class="facts__row facts__row--g66"><dt>Costo con Global66:</dt><dd><span data-out="g66Cost"></span> <small data-out="g66Pct"></small></dd></div>
+              <div class="facts__group">
+              <dt class="facts__head">
+                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 21h18M12 3l9 5H3l9-5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+                Lo que te cobra tu banco:
+              </dt>
+              <dd style="margin:0"><ul class="facts__bank" data-bankfees></ul></dd>
               </div>
-            </div>
-            <div class="receive receive--g66">
-              <span class="receive__who"><img src="assets/iso-white.svg" alt="" width="20" height="20" /> Con Global66</span>
-              <span class="receive__value" data-out="g66Receive">$ 0</span>
-            </div>
-            <div class="receive receive--bank">
-              <span class="receive__who"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 21h18M12 3l9 5H3l9-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg> Con tu banco</span>
-              <span class="receive__value" data-out="bankReceive">$ 0</span>
-            </div>
-          </div>
+              <div class="facts__row facts__row--total"><dt>Total banco:</dt><dd><span data-out="bankCost"></span> <small data-out="bankPct"></small></dd></div>
+              <div class="facts__rates"><span>Tasa real: <b data-out="midRate"></b></span><span>Tasa banco: <b data-out="bankRate"></b></span></div>
+            </dl>
 
-          <div class="quoter__panel quoter__panel--save">
-            <div>
-              <span class="quoter__label">Tu proveedor recibe de más</span>
-              <strong class="save__value" data-out="savingsDest">$ 0</strong>
-            </div>
-            <div class="save__side">
-              <span>Ahorras</span>
-              <strong data-out="savings">$ 0</strong>
-            </div>
+            <p class="quoter__pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span data-out="savingsLead">Tu proveedor recibe</span>&nbsp;<b data-out="savingsDest">0</b>&nbsp;más
+            </p>
+            <a class="btn btn--blue btn--block" href="#detalle">Ahorras <span data-out="savings">0</span></a>
+            <p class="quoter__source">
+              <svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true"><path d="M2 6V4a4 4 0 118 0v2h1a1 1 0 011 1v6a1 1 0 01-1 1H1a1 1 0 01-1-1V7a1 1 0 011-1h1zm2 0h4V4a2 2 0 10-4 0v2z" fill="currentColor"/></svg>
+              <span data-out="rateSource">Cargando tasas…</span>
+            </p>
           </div>
-
-          <ul class="quoter__facts">
-            <li><span class="dot"></span>Tasa real <b data-out="midRate"></b></li>
-            <li><span class="dot"></span>Tasa banco <b data-out="bankRate"></b></li>
-            <li class="quoter__source" data-out="rateSource">Cargando tasas…</li>
-          </ul>
         </div>
       </div>
     </section>
@@ -105,16 +138,16 @@
     <!-- DETALLE -->
     <section class="section" id="detalle">
       <div class="wrap">
-        <h2 class="section__title">Dónde se va <strong>tu dinero</strong></h2>
-        <p class="section__lead">El costo de un banco no está solo en la comisión que ves. La mayor parte se esconde en el tipo de cambio y en los bancos que tocan tu transferencia en el camino.</p>
+        <h2 class="heading"><strong>Dónde se va</strong> tu dinero</h2>
+        <p class="lead">El costo de un banco no está solo en la comisión que ves. La mayor parte se esconde en el tipo de cambio y en los bancos que tocan tu transferencia en el camino.</p>
 
         <div class="compare">
           <article class="card card--g66">
             <header class="card__head">
-              <img src="assets/iso-white.svg" alt="" width="32" height="32" />
+              <img src="assets/iso-white.svg" alt="" width="40" height="40" />
               <div>
-                <h3>Global66 Business</h3>
-                <span>Pago local, sin SWIFT ni intermediarios</span>
+                <h3>Global66</h3>
+                <span data-out="g66Sub">Pago local, sin SWIFT ni intermediarios</span>
               </div>
             </header>
             <ul class="lines" data-lines="g66"></ul>
@@ -130,7 +163,7 @@
               <span class="card__bankicon"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10h18M5 10v8m4-8v8m6-8v8m4-8v8M3 21h18M12 3l9 5H3l9-5z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
               <div>
                 <h3>Banco tradicional</h3>
-                <span>Transferencia vía red SWIFT</span>
+                <span data-out="bankSub">Transferencia vía red SWIFT</span>
               </div>
             </header>
             <ul class="lines" data-lines="bank"></ul>
@@ -144,7 +177,7 @@
         </div>
 
         <div class="anatomy">
-          <h3 class="anatomy__title">Anatomía del costo</h3>
+          <h3 class="anatomy__title"><strong>Anatomía</strong> del costo</h3>
           <div class="bar-row">
             <span class="bar-row__label">Global66</span>
             <div class="bar" data-bar="g66"></div>
@@ -161,48 +194,57 @@
     </section>
 
     <!-- PROYECCIÓN -->
-    <section class="projection" id="proyeccion">
-      <div class="wrap projection__grid">
-        <div>
-          <p class="eyebrow">PROYECCIÓN ANUAL</p>
-          <h2 class="projection__title">¿Cuántas veces al mes pagas al exterior?</h2>
-          <div class="freq">
-            <input type="range" id="perMonth" min="1" max="60" value="4" aria-label="Envíos al mes" />
-            <output for="perMonth" data-out="perMonth">4 envíos al mes</output>
+    <section class="block" id="proyeccion">
+      <div class="panel panel--fade">
+        <div class="projection__grid">
+          <div>
+            <h2 class="projection__title">Si tu empresa es global,<br />cada envío cuenta</h2>
+            <p class="projection__lead" data-out="projLead">¿Cuántas veces al mes pagas al exterior? Mismo monto y corredor en cada envío.</p>
+            <div class="freq">
+              <input type="range" id="perMonth" min="1" max="60" value="4" aria-label="Envíos al mes" />
+              <output for="perMonth" data-out="perMonth">4 envíos al mes</output>
+            </div>
           </div>
-          <p class="projection__note">Mismo monto y corredor en cada envío.</p>
-        </div>
-        <div class="projection__result">
-          <span>En un año tu empresa deja de perder</span>
-          <strong data-out="savingsYear">$ 0</strong>
-          <span data-out="savingsYearUsd"></span>
+          <div class="wallet">
+            <div class="wallet__top">
+              <img src="assets/logo-business.svg" alt="Global66" width="160" height="20" />
+              <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#fff"/><path d="M7 12.5l3 3 7-7" fill="none" stroke="#2a48af" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="wallet__cards" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="wallet__body">
+              <span>Dejas de perder al año</span>
+              <strong data-out="savingsYear">0</strong>
+              <small data-out="savingsYearUsd"></small>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- SUPUESTOS -->
-    <section class="section section--soft" id="supuestos">
+    <section class="section section--tight" id="supuestos">
       <div class="wrap">
         <details class="assume">
           <summary>
             <span>Supuestos del cálculo</span>
-            <small>Ajusta los valores según la cotización real de tu banco</small>
+            <small>Ajusta los valores con la cotización real de tu banco</small>
           </summary>
           <form class="assume__grid" data-assume>
             <fieldset>
               <legend>Global66</legend>
-              <label>Costo de envío <span class="unit">%</span><input type="number" step="0.1" min="0" name="g66Pct" /></label>
+              <label>Costo de envío / tipo de cambio <span class="unit">%</span><input type="number" step="0.1" min="0" name="g66Pct" /></label>
             </fieldset>
             <fieldset>
               <legend>Banco tradicional</legend>
               <label>Spread sobre tasa real <span class="unit">%</span><input type="number" step="0.1" min="0" name="bankSpreadPct" /></label>
-              <label>Comisión giro SWIFT <span class="unit">USD</span><input type="number" step="1" min="0" name="swiftUsd" /></label>
+              <label data-modes="transfer payout">Comisión giro SWIFT (por giro) <span class="unit">USD</span><input type="number" step="1" min="0" name="swiftUsd" /></label>
               <label>IVA sobre comisión <span class="unit">%</span><input type="number" step="1" min="0" name="ivaPct" /></label>
-              <label>Banco corresponsal <span class="unit">USD</span><input type="number" step="1" min="0" name="correspondentUsd" /></label>
-              <label>Banco receptor <span class="unit">USD</span><input type="number" step="1" min="0" name="receivingUsd" /></label>
+              <label data-modes="transfer payout">Banco corresponsal (por giro) <span class="unit">USD</span><input type="number" step="1" min="0" name="correspondentUsd" /></label>
+              <label data-modes="transfer payout">Banco receptor (por giro) <span class="unit">USD</span><input type="number" step="1" min="0" name="receivingUsd" /></label>
+              <label data-modes="fx">Comisión operación de cambio <span class="unit">USD</span><input type="number" step="1" min="0" name="fxFeeUsd" /></label>
             </fieldset>
             <div class="assume__actions">
-              <button type="button" class="btn btn--ghost" data-reset>Restablecer valores por tramo</button>
+              <button type="button" class="btn btn--outline" data-reset>Restablecer valores por tramo</button>
               <p>Los porcentajes por defecto cambian según el monto: a mayor envío, menor costo en ambos lados.</p>
             </div>
           </form>
@@ -211,11 +253,12 @@
     </section>
 
     <!-- CTA -->
-    <section class="cta">
+    <section class="section cta">
       <div class="wrap cta__inner">
-        <img src="assets/iso-white.svg" alt="" width="56" height="56" />
-        <p class="cta__tag">Fácil, rápido y económico</p>
-        <a class="btn btn--white btn--lg" href="https://empresas.global66.com/auth/sign-up" target="_blank" rel="noopener">Crea Tu Cuenta Global</a>
+        <img src="assets/iso-blue.svg" alt="" width="64" height="64" />
+        <h2 class="heading">Abre tu <br /><strong>Cuenta Global Business</strong></h2>
+        <p class="lead">Cobra, paga y maneja dólares y otras monedas desde una cuenta a nombre de tu empresa. Sin costos ocultos ni de mantención.</p>
+        <a class="btn btn--blue btn--lg" href="https://empresas.global66.com/auth/sign-up" target="_blank" rel="noopener">Crea Tu Cuenta Global</a>
       </div>
     </section>
   </main>
