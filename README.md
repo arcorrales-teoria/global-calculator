@@ -14,14 +14,11 @@ Muestra, línea por línea, lo que realmente cuesta pagar a un proveedor en el e
 
 ## Qué hace
 
-- **Cotizador** con el look de Global66 (azul royal `#2A48AF`, Montserrat, tarjeta blanca), selector de modo y lista de lo que cobra el banco: monto, moneda de origen (COP, CLP, PEN, MXN) y de destino (USD, EUR, GBP).
-- **Lo que recibe tu proveedor** con Global66 y con el banco, y la diferencia.
-- **Dónde se va tu dinero**: desglose de cada cobro, marcando los costos ocultos.
-- **Anatomía del costo**: barra comparativa por componente.
-- **Proyección anual** según la cantidad de envíos al mes.
-- **Supuestos editables**: spread, comisión SWIFT, IVA, corresponsal y receptor, para ajustar con la cotización real de un banco.
-- Tasa real de mercado en vivo desde [open.er-api.com](https://open.er-api.com), con valores de respaldo si no hay conexión.
-- El escenario queda en la URL (`?mode=payout&amount=150000000&from=COP&to=USD&n=2&p=25`), útil para compartir una simulación con un cliente.
+1. **Cotizador**: pestañas Transferir / Convertir / Dispersar, monto y monedas. Muestra cuánto recibe tu proveedor con Global66 y con tu banco, y cuánto ahorras. El detalle de lo que cobra el banco se despliega en "Ver lo que te cobra tu banco".
+2. **Simulador "Dónde se va tu dinero"**: tabla Concepto | Tu banco | Global66. Cada cobro se abre con una explicación y un control para ajustarlo (deslizador, valor exacto e interruptor "Lo cobra"). Perfiles rápidos de banco: Poco, Lo típico, Mucho. Pasar el mouse por una fila resalta su parte en la barra de costos y viceversa.
+3. **Proyección anual** según operaciones al mes.
+
+Todo se recalcula en vivo. La tasa real viene de [open.er-api.com](https://open.er-api.com), con valores de respaldo sin conexión. El escenario queda en la URL (`?mode=payout&amount=150000000&from=COP&to=USD&n=2&p=25`).
 
 ## Cómo se calcula
 
@@ -32,7 +29,7 @@ Muestra, línea por línea, lo que realmente cuesta pagar a un proveedor en el e
 | Intermediarios | Sin costo (pago local) | Corresponsal USD 25 + receptor USD 15 |
 | Llegada | 1 a 2 días hábiles | 3 a 5 días hábiles |
 
-Los tramos de Global66 van de 3,5% (envíos chicos) a 0,5% (más de USD 50.000), en línea con lo que muestra su cotizador: a mayor monto, menor costo. Todo vive en `js/pricing.js`.
+Los tramos de Global66 van de 3,5% (envíos chicos) a 0,5% (más de USD 50.000), en línea con lo que muestra su cotizador: a mayor monto, menor costo. El modelo vive en `js/pricing.js`; la interacción en `js/app.js`.
 
 ## Correr local
 
