@@ -1,0 +1,11 @@
+{
+  "name": "global-calculator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Comparador de costos de transferencias internacionales: Global66 Business vs banco tradicional.",
+  "scripts": {
+    "start": "python3 -m http.server 5173",
+    "test": "node --test test/*.test.js"
+  }
+}
