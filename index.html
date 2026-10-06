@@ -121,14 +121,15 @@
               <span class="save__note" data-out="savingsNote"></span>
             </div>
 
-            <details class="fees">
-              <summary>
-                <span>Ver lo que te cobra tu banco</span>
-                <b data-out="bankCostPct"></b>
-                <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2"/></svg>
-              </summary>
+            <div class="fees" aria-live="polite">
+              <p class="fees__head">
+                <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z M12 15a3 3 0 100-6 3 3 0 000 6z M3 3l18 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                <span>Costo oculto de tu banco</span>
+                <b data-out="hiddenPct"></b>
+              </p>
               <ul class="fees__list" data-bankfees></ul>
-            </details>
+              <p class="fees__visible" data-out="visibleFees"></p>
+            </div>
 
             <a class="btn btn--blue btn--block" href="#detalle">Ajustar los costos de mi banco</a>
             <p class="quoter__source" data-out="rateSource">Cargando tasas…</p>

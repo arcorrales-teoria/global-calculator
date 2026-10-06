@@ -411,3 +411,13 @@ input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; h
   .ctrl { padding: 14px; }
   .ctrl__label { font-size: 12px; }
 }
+
+/* Costo oculto del banco en el cotizador: solo lectura */
+.fees { padding: 16px 22px 14px; }
+.fees__head { margin: 0 0 6px; display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 700; color: var(--bad); }
+.fees__head span { flex: 1; }
+.fees__head b { font-size: 13px; background: var(--bad-soft); border-radius: 9999px; padding: 4px 10px; font-variant-numeric: tabular-nums; }
+.fees .fees__list { padding: 0; animation: none; }
+.fees__visible { margin: 8px 0 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.fees__visible:empty { display: none; }
+@media (max-width: 600px) { .fees { padding: 14px 16px 12px; } }

@@ -363,25 +363,27 @@ function renderQuoter(r) {
 
   setNum('savings', r.savings, (v) => money(v, from));
   setText('savingsNote', `por ${copy.unit[0]} · ${copy.more} ${money(r.savingsDest, to)} más`);
-  setText('bankCostPct', pct(r.bank.costPct));
-
+  // Solo los costos ocultos del banco, sin interacción.
+  const hidden = r.bank.lines.filter((l) => l.hidden && !state.off.has(l.key));
+  const hiddenTotal = hidden.reduce((acc, l) => acc + l.value, 0);
+  const visibleTotal = r.bank.cost - hiddenTotal;
+  setText('hiddenPct', pct(state.amount ? (hiddenTotal / state.amount) * 100 : 0));
   const list = $('[data-bankfees]');
-  list.replaceChildren(
-    ...r.bank.lines.map((l) => {
-      const li = document.createElement('li');
-      if (state.off.has(l.key)) li.className = 'is-off';
-      li.innerHTML = `<span><i style="background:${COLORS[l.key]}"></i></span><span></span>`;
-      li.firstChild.append(l.label);
-      li.lastChild.textContent = money(l.value, from);
-      return li;
-    }),
-    Object.assign(document.createElement('li'), { className: 'is-total', innerHTML: '<span>Total banco</span><span></span>' }),
-  );
-  list.lastChild.lastChild.textContent = money(r.bank.cost, from);
-  const edit = document.createElement('li');
-  edit.style.borderTop = '0';
-  edit.innerHTML = '<a class="fees__edit" href="#detalle">Ajustar estos valores</a>';
-  list.append(edit);
+  list.replaceChildren(...hidden.map((l) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span><i style="background:${COLORS[l.key]}"></i></span><span></span>`;
+    li.firstChild.append(l.label);
+    li.lastChild.textContent = money(l.value, from);
+    return li;
+  }));
+  const total = document.createElement('li');
+  total.className = 'is-total';
+  total.innerHTML = '<span>Total oculto</span><span></span>';
+  total.lastChild.textContent = money(hiddenTotal, from);
+  list.append(total);
+  setText('visibleFees', visibleTotal > 0.5
+    ? `Además cobra ${money(visibleTotal, from)} en comisiones visibles (${mode === 'fx' ? 'operación de cambio' : 'SWIFT'} e IVA).`
+    : '');
 
   // Proyección
   setNum('savingsYear', r.savingsYear, (v) => money(v, from));

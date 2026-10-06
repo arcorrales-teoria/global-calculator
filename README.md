@@ -14,7 +14,7 @@ Muestra, línea por línea, lo que realmente cuesta pagar a un proveedor en el e
 
 ## Qué hace
 
-1. **Cotizador**: pestañas Transferir / Convertir / Dispersar, monto y monedas. Muestra cuánto recibe tu proveedor con Global66 y con tu banco, y cuánto ahorras. El detalle de lo que cobra el banco se despliega en "Ver lo que te cobra tu banco".
+1. **Cotizador**: pestañas Transferir / Convertir / Dispersar, monto y monedas. Muestra cuánto recibe tu proveedor con Global66 y con tu banco, y cuánto ahorras. Debajo muestra, fijo y sin interacción, el costo oculto del banco (spread, corresponsal y receptor).
 2. **Simulador "Dónde se va tu dinero"**: tabla Concepto | Tu banco | Global66. Cada cobro se abre con una explicación y un control para ajustarlo (deslizador, valor exacto e interruptor "Lo cobra"). Perfiles rápidos de banco: Poco, Lo típico, Mucho. Pasar el mouse por una fila resalta su parte en la barra de costos y viceversa.
 3. **Proyección anual** según operaciones al mes.
 
